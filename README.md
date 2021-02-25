@@ -11,6 +11,9 @@ Scripts, datasets, and other resources from our weekly R session
 - Simulating data
 - Rmarkdown
 
+<<<<<<< HEAD
 + any specific suggestions or requests...
 
+=======
+>>>>>>> 0490355577cf626c7f8448f95df5fdb865ab6044
 Datasets will primarily come from the [tidy tuesday](https://github.com/rfordatascience/tidytuesday) repository

@@ -1,0 +1,51 @@
+---
+title: "Results section for movies analysis"
+author: "Collaborative"
+date: "4/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = F, warning = F, message = F}
+library(tidyverse)
+
+movies <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-09/movies.csv')
+
+movies <- movies %>% 
+  mutate_at(vars(matches("_2013")), list(~as.numeric(.) )) %>% 
+  mutate_at(vars("test","clean_test","binary"), list(~as.factor(.) )) %>% 
+  separate(genre, into = c("genre1","genre2","genre3"), sep=",") %>% 
+  mutate(runtime = as.numeric(str_remove(runtime," min|N/A"))) %>% 
+  select(imdb,year,clean_test,binary,budget_2013,intgross_2013,domgross_2013,
+         decade_code, language,country, runtime, metascore,genre1,genre2,genre3)
+
+```
+
+# Analysis of budget rating relationship by test
+```{r, echo = F, warning = F, message = F}
+linmodel <- lm(formula = metascore ~ budget_2013*binary , data=movies, na.action = na.exclude )
+
+knitr::kable(summary(linmodel)$coefficients, digits = 2, caption = "Table1 linear regression")
+
+library(lavaan)
+
+model <- 'metascore ~ budget_2013 '
+
+lav_fit <- sem(model, data=movies, group="binary")
+
+lav_fit_constrained <- sem(model, data=movies, group="binary", group.equal = c("intercepts", "regressions"))
+
+```
+
+The coefficient for budget was `r round(coef(linmodel)[2], 3)`. There was no significant interaction between budget and test passing (p = `r round(summary(linmodel)$coefficients[4, 4], 3)`). 
+
+```{r, echo = F, warning = F, message = F}
+ggplot(movies, aes(x = budget_2013, y = metascore)) + 
+    geom_point() +
+    facet_wrap(~binary)
+```
+
+
